@@ -1,0 +1,24 @@
+declare_args() {
+  urdl_disable_ssl = false
+}
+
+config("urdl_config") {
+  include_dirs = [ "include" ]
+  defines = []
+
+  if (urdl_disable_ssl) {
+    defines += [ "URDL_DISABLE_SSL" ]
+  }
+}
+
+source_set("urdl") {
+  sources = [
+    "src/urdl.cpp",
+  ]
+
+  public_configs = [ ":urdl_config" ]
+  public_deps = [
+    "$external/boost/libs/asio",
+    "$external/boost/libs/system",
+  ]
+}
