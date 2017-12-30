@@ -21,4 +21,9 @@ source_set("urdl") {
     "$external/boost/libs/asio",
     "$external/boost/libs/system",
   ]
+  if (!urdl_disable_ssl) {
+    public_deps += [
+      "$external/boringssl",
+    ]
+  }
 }
