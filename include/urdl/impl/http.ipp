@@ -22,6 +22,9 @@ namespace detail {
 class error_category_impl
   : public boost::system::error_category
 {
+public:
+  BOOST_CONSTEXPR BOOST_DEFAULTED_FUNCTION(error_category_impl() BOOST_NOEXCEPT, {})
+
   virtual const char* name() const URDL_ERROR_CATEGORY_NOEXCEPT
   {
     return "HTTP";
@@ -138,18 +141,13 @@ class error_category_impl
 
 } // namespace detail
 
-const boost::system::error_category& error_category()
+static const detail::error_category_impl error_cat;
+
+const boost::system::error_category& error_category() BOOST_NOEXCEPT
 {
-  static detail::error_category_impl instance;
-  return instance;
+  return error_cat;
 }
 
-namespace detail {
-
-static const boost::system::error_category& category_instance
-  = error_category();
-
-} // namespace detail
 } // namespace http
 } // namespace urdl
 

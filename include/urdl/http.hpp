@@ -28,7 +28,7 @@ namespace http {
  * @e Header: @c <urdl/http.hpp> @n
  * @e Namespace: @c urdl::http
  */
-URDL_DECL const boost::system::error_category& error_category();
+URDL_DECL const boost::system::error_category& error_category() BOOST_NOEXCEPT;
 
 /// Option to specify the HTTP request method.
 /**
@@ -83,7 +83,7 @@ public:
   /**
    * @returns The value of the option.
    */
-  std::string value() const
+  const std::string& value() const BOOST_NOEXCEPT
   {
     return value_;
   }
@@ -162,7 +162,7 @@ public:
   /**
    * @returns The value of the option.
    */
-  std::string value() const
+  const std::string& value() const BOOST_NOEXCEPT
   {
     return value_;
   }
@@ -221,7 +221,7 @@ public:
    * Postcondition: <tt>value() == ""</tt>.
    */
   request_content_type()
-    : value_("")
+    : value_()
   {
   }
 
@@ -241,7 +241,7 @@ public:
   /**
    * @returns The value of the option.
    */
-  std::string value() const
+  const std::string& value() const BOOST_NOEXCEPT
   {
     return value_;
   }
@@ -391,7 +391,7 @@ public:
   /**
    * @returns The value of the option.
    */
-  std::string value() const
+  const std::string& value() const BOOST_NOEXCEPT
   {
     return value_;
   }
@@ -563,7 +563,7 @@ enum errc_t
  * @e Header: @c <urdl/http.hpp> @n
  * @e Namespace: @c urdl::http
  */
-inline boost::system::error_code make_error_code(errc_t e)
+inline boost::system::error_code make_error_code(errc_t e) BOOST_NOEXCEPT
 {
   return boost::system::error_code(
       static_cast<int>(e), http::error_category());
