@@ -21,7 +21,7 @@
 
 namespace urdl {
 
-unsigned short url::port() const
+unsigned short url::port() const BOOST_NOEXCEPT
 {
   if (!port_.empty())
     return std::atoi(port_.c_str());
@@ -92,7 +92,8 @@ std::string url::to_string(int components) const
   return s;
 }
 
-url url::from_string(const char* s, boost::system::error_code& ec)
+url url::from_string(const char* s,
+    boost::system::error_code& ec) BOOST_NOEXCEPT
 {
   url new_url;
 
@@ -227,7 +228,8 @@ url url::from_string(const char* s)
   return new_url;
 }
 
-url url::from_string(const std::string& s, boost::system::error_code& ec)
+url url::from_string(const std::string& s,
+    boost::system::error_code& ec) BOOST_NOEXCEPT
 {
   return from_string(s.c_str(), ec);
 }
@@ -290,7 +292,7 @@ bool url::unescape_path(const std::string& in, std::string& out)
   return true;
 }
 
-bool operator==(const url& a, const url& b)
+bool operator==(const url& a, const url& b) BOOST_NOEXCEPT
 {
   return a.protocol_ == b.protocol_
     && a.user_info_ == b.user_info_
@@ -301,12 +303,12 @@ bool operator==(const url& a, const url& b)
     && a.fragment_ == b.fragment_;
 }
 
-bool operator!=(const url& a, const url& b)
+bool operator!=(const url& a, const url& b) BOOST_NOEXCEPT
 {
   return !(a == b);
 }
 
-bool operator<(const url& a, const url& b)
+bool operator<(const url& a, const url& b) BOOST_NOEXCEPT
 {
   if (a.protocol_ < b.protocol_)
     return true;

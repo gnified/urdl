@@ -208,7 +208,7 @@ public:
    * std::size_t value = option.value();
    * @endcode
    */
-  option_set get_options() const
+  const option_set& get_options() const BOOST_NOEXCEPT
   {
     return options_;
   }
@@ -217,7 +217,7 @@ public:
   /**
    * @returns @c true if the stream is open, @c false otherwise.
    */
-  bool is_open() const
+  bool is_open() const BOOST_NOEXCEPT
   {
     switch (protocol_)
     {
@@ -284,7 +284,8 @@ public:
    * }
    * @endcode
    */
-  boost::system::error_code open(const url& u, boost::system::error_code& ec)
+  boost::system::error_code open(const url& u,
+      boost::system::error_code& ec) BOOST_NOEXCEPT
   {
     url tmp_url = u;
     std::size_t redirects = 0;
@@ -423,7 +424,7 @@ public:
    * Any asynchronous open or read operations will be cancelled, and will
    * complete with the @c boost::asio::error::operation_aborted error.
    */
-  boost::system::error_code close(boost::system::error_code& ec)
+  boost::system::error_code close(boost::system::error_code& ec) BOOST_NOEXCEPT
   {
     switch (protocol_)
     {
@@ -475,7 +476,7 @@ public:
    * with the URL does not specify a length,
    * @c std::numeric_limits<std::size_t>::max().
    */
-  std::size_t content_length() const
+  std::size_t content_length() const BOOST_NOEXCEPT
   {
     switch (protocol_)
     {
@@ -593,7 +594,7 @@ public:
    */
   template <typename MutableBufferSequence>
   std::size_t read_some(const MutableBufferSequence& buffers,
-      boost::system::error_code& ec)
+      boost::system::error_code& ec) BOOST_NOEXCEPT
   {
     switch (protocol_)
     {

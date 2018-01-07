@@ -21,17 +21,17 @@
 namespace urdl {
 namespace detail {
 
-inline bool is_char(int c)
+inline BOOST_CONSTEXPR bool is_char(int c) BOOST_NOEXCEPT
 {
   return c >= 0 && c <= 127;
 }
 
-inline bool is_ctl(int c)
+inline BOOST_CONSTEXPR bool is_ctl(int c) BOOST_NOEXCEPT
 {
   return (c >= 0 && c <= 31) || c == 127;
 }
 
-inline bool is_tspecial(int c)
+inline BOOST_CONSTEXPR bool is_tspecial(int c) BOOST_NOEXCEPT
 {
   switch (c)
   {
@@ -45,17 +45,18 @@ inline bool is_tspecial(int c)
   }
 }
 
-inline bool is_digit(int c)
+inline BOOST_CONSTEXPR bool is_digit(int c) BOOST_NOEXCEPT
 {
   return c >= '0' && c <= '9';
 }
 
-inline bool tolower_compare(char a, char b)
+inline bool tolower_compare(char a, char b) BOOST_NOEXCEPT
 {
   return std::tolower(a) == std::tolower(b);
 }
 
-inline bool headers_equal(const std::string& a, const std::string& b)
+inline bool headers_equal(const std::string& a,
+    const std::string& b) BOOST_NOEXCEPT
 {
   if (a.length() != b.length())
     return false;

@@ -46,7 +46,7 @@ void async_handshake(boost::asio::ip::tcp::socket& socket,
 
 #if !defined(URDL_DISABLE_SSL)
 inline bool match_pattern(const char* pattern,
-    std::size_t pattern_length, const char* host)
+    std::size_t pattern_length, const char* host) BOOST_NOEXCEPT
 {
   const char* p = pattern;
   const char* p_end = p + pattern_length;

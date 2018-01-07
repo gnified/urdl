@@ -58,7 +58,7 @@ public:
    * @c query(), @c fragment() all return an empty string, and @c port() returns
    * 0.
    */
-  url()
+  url() BOOST_NOEXCEPT
     : ipv6_host_(false)
   {
   }
@@ -92,7 +92,7 @@ public:
    * @returns A string specifying the protocol of the URL. Examples include
    * @c http, @c https or @c file.
    */
-  std::string protocol() const
+  const std::string& protocol() const BOOST_NOEXCEPT
   {
     return protocol_;
   }
@@ -102,7 +102,7 @@ public:
    * @returns A string containing the user info of the URL. Typically in the
    * format <tt>user:password</tt>, but depends on the protocol.
    */
-  std::string user_info() const
+  const std::string& user_info() const BOOST_NOEXCEPT
   {
     return user_info_;
   }
@@ -111,7 +111,7 @@ public:
   /**
    * @returns A string containing the host name of the URL.
    */
-  std::string host() const
+  const std::string& host() const BOOST_NOEXCEPT
   {
     return host_;
   }
@@ -124,7 +124,7 @@ public:
    * If the URL string did not specify a port, and the protocol is one of @c
    * http, @c https or @c ftp, an appropriate default port number is returned.
    */
-  URDL_DECL unsigned short port() const;
+  URDL_DECL unsigned short port() const BOOST_NOEXCEPT;
 
   /// Gets the path component of the URL.
   /**
@@ -144,7 +144,7 @@ public:
    * The query string is not unescaped, but is returned in whatever form it
    * takes in the original URL string.
    */
-  std::string query() const
+  const std::string& query() const BOOST_NOEXCEPT
   {
     return query_;
   }
@@ -153,7 +153,7 @@ public:
   /**
    * @returns A string containing the fragment of the URL.
    */
-  std::string fragment() const
+  const std::string& fragment() const BOOST_NOEXCEPT
   {
     return fragment_;
   }
@@ -213,7 +213,7 @@ public:
    * @returns A @c url object corresponding to the specified string.
    */
   URDL_DECL static url from_string(const char* s,
-      boost::system::error_code& ec);
+      boost::system::error_code& ec) BOOST_NOEXCEPT;
 
   /// Converts a string representation of a URL into an object of class @c url.
   /**
@@ -234,16 +234,16 @@ public:
    * @returns A @c url object corresponding to the specified string.
    */
   URDL_DECL static url from_string(const std::string& s,
-      boost::system::error_code& ec);
+      boost::system::error_code& ec) BOOST_NOEXCEPT;
 
   /// Compares two @c url objects for equality.
-  friend URDL_DECL bool operator==(const url& a, const url& b);
+  friend URDL_DECL bool operator==(const url& a, const url& b) BOOST_NOEXCEPT;
 
   /// Compares two @c url objects for inequality.
-  friend URDL_DECL bool operator!=(const url& a, const url& b);
+  friend URDL_DECL bool operator!=(const url& a, const url& b) BOOST_NOEXCEPT;
 
   /// Compares two @c url objects for ordering.
-  friend URDL_DECL bool operator<(const url& a, const url& b);
+  friend URDL_DECL bool operator<(const url& a, const url& b) BOOST_NOEXCEPT;
 
 private:
   URDL_DECL static bool unescape_path(const std::string& in, std::string& out);
