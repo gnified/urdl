@@ -142,7 +142,7 @@ public:
    * Postcondition: <tt>value() == ""</tt>.
    */
   request_content()
-    : value_("")
+    : value_()
   {
   }
 
@@ -371,7 +371,7 @@ public:
    * Postcondition: <tt>value() == ""</tt>.
    */
   user_agent()
-    : value_("")
+    : value_()
   {
   }
 
@@ -383,6 +383,80 @@ public:
    * Postcondition: <tt>value() == v</tt>
    */
   explicit user_agent(const std::string& v)
+    : value_(v)
+  {
+  }
+
+  /// Gets the value of the option.
+  /**
+   * @returns The value of the option.
+   */
+  const std::string& value() const BOOST_NOEXCEPT
+  {
+    return value_;
+  }
+
+  /// Sets the value of the option.
+  /**
+   * @param v The desired value for the option.
+   *
+   * @par Remarks
+   * Postcondition: <tt>value() == v</tt>
+   */
+  void value(const std::string& v)
+  {
+    value_ = v;
+  }
+
+private:
+  std::string value_;
+};
+
+/// Option to specify the cache-control header.
+/**
+ * @par Remarks
+ * The default is to not specify the cache-control header.
+ *
+ * @par Example
+ * To set the cache-control header for an object of class @c urdl::istream:
+ * @code
+ * urdl::istream is;
+ * is.set_option(urdl::http::cache_control("max-age=0"));
+ * is.open("http://www.boost.org");
+ * @endcode
+ *
+ * To set the cache-control header for an object of class @c urdl::read_stream:
+ * @code
+ * urdl::read_stream stream;
+ * stream.set_option(urdl::http::cache_control("no-cache"));
+ * stream.open("http://www.boost.org");
+ * @endcode
+ *
+ * @par Requirements
+ * @e Header: @c <urdl/http.hpp> @n
+ * @e Namespace: @c urdl::http
+ */
+class cache_control
+{
+public:
+  /// Constructs an object of class @c cache_control.
+  /**
+   * @par Remarks
+   * Postcondition: <tt>value() == ""</tt>.
+   */
+  cache_control()
+    : value_()
+  {
+  }
+
+  /// Constructs an object of class @c cache_control.
+  /**
+   * @param v The desired value for the option.
+   *
+   * @par Remarks
+   * Postcondition: <tt>value() == v</tt>
+   */
+  explicit cache_control(const std::string& v)
     : value_(v)
   {
   }

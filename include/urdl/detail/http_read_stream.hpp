@@ -86,6 +86,8 @@ public:
       = options_.get_option<urdl::http::request_content_type>();
     urdl::http::user_agent user_agent
       = options_.get_option<urdl::http::user_agent>();
+    urdl::http::cache_control cache_control
+      = options_.get_option<urdl::http::cache_control>();
 
     // Form the request. We specify the "Connection: close" header so that the
     // server will close the socket after transmitting the response. This will
@@ -110,6 +112,8 @@ public:
     }
     if (user_agent.value().length())
       request_stream << "User-Agent: " << user_agent.value() << "\r\n";
+    if (cache_control.value().length())
+      request_stream << "Cache-Control: " << cache_control.value() << "\r\n";
     request_stream << "Connection: close\r\n\r\n";
     request_stream << request_content.value();
 
@@ -236,6 +240,8 @@ public:
           = options_.get_option<urdl::http::request_content_type>();
         urdl::http::user_agent user_agent
           = options_.get_option<urdl::http::user_agent>();
+        urdl::http::cache_control cache_control
+          = options_.get_option<urdl::http::cache_control>();
 
         // Form the request. We specify the "Connection: close" header so that
         // the server will close the socket after transmitting the response.
@@ -263,6 +269,8 @@ public:
         }
         if (user_agent.value().length())
           request_stream << "User-Agent: " << user_agent.value() << "\r\n";
+        if (cache_control.value().length())
+          request_stream << "Cache-Control: " << cache_control.value() << "\r\n";
         request_stream << "Connection: close\r\n\r\n";
         request_stream << request_content.value();
       }
