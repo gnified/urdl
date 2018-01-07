@@ -78,40 +78,40 @@ public:
       return ec;
 
     // Get the HTTP options used to build the request.
-    std::string request_method
-      = options_.get_option<urdl::http::request_method>().value();
-    std::string request_content
-      = options_.get_option<urdl::http::request_content>().value();
-    std::string request_content_type
-      = options_.get_option<urdl::http::request_content_type>().value();
-    std::string user_agent
-      = options_.get_option<urdl::http::user_agent>().value();
+    urdl::http::request_method request_method
+      = options_.get_option<urdl::http::request_method>();
+    urdl::http::request_content request_content
+      = options_.get_option<urdl::http::request_content>();
+    urdl::http::request_content_type request_content_type
+      = options_.get_option<urdl::http::request_content_type>();
+    urdl::http::user_agent user_agent
+      = options_.get_option<urdl::http::user_agent>();
 
     // Form the request. We specify the "Connection: close" header so that the
     // server will close the socket after transmitting the response. This will
     // allow us to treat all data up until the EOF as the content.
     std::ostream request_stream(&request_buffer_);
-    request_stream << request_method << " ";
+    request_stream << request_method.value() << " ";
     request_stream << u.to_string(url::path_component | url::query_component);
     request_stream << " HTTP/1.0\r\n";
     request_stream << "Host: ";
     request_stream << u.to_string(url::host_component | url::port_component);
     request_stream << "\r\n";
     request_stream << "Accept: */*\r\n";
-    if (request_content.length())
+    if (request_content.value().length())
     {
       request_stream << "Content-Length: ";
-      request_stream << request_content.length() << "\r\n";
-      if (request_content_type.length())
+      request_stream << request_content.value().length() << "\r\n";
+      if (request_content_type.value().length())
       {
         request_stream << "Content-Type: ";
-        request_stream << request_content_type << "\r\n";
+        request_stream << request_content_type.value() << "\r\n";
       }
     }
-    if (user_agent.length())
-      request_stream << "User-Agent: " << user_agent << "\r\n";
+    if (user_agent.value().length())
+      request_stream << "User-Agent: " << user_agent.value() << "\r\n";
     request_stream << "Connection: close\r\n\r\n";
-    request_stream << request_content;
+    request_stream << request_content.value();
 
     // Send the request.
     boost::asio::write(socket_, request_buffer_,
@@ -228,21 +228,21 @@ public:
 
       {
         // Get the HTTP options used to build the request.
-        std::string request_method
-          = options_.get_option<urdl::http::request_method>().value();
-        std::string request_content
-          = options_.get_option<urdl::http::request_content>().value();
-        std::string request_content_type
-          = options_.get_option<urdl::http::request_content_type>().value();
-        std::string user_agent
-          = options_.get_option<urdl::http::user_agent>().value();
+        urdl::http::request_method request_method
+          = options_.get_option<urdl::http::request_method>();
+        urdl::http::request_content request_content
+          = options_.get_option<urdl::http::request_content>();
+        urdl::http::request_content_type request_content_type
+          = options_.get_option<urdl::http::request_content_type>();
+        urdl::http::user_agent user_agent
+          = options_.get_option<urdl::http::user_agent>();
 
         // Form the request. We specify the "Connection: close" header so that
         // the server will close the socket after transmitting the response.
         // This will allow us to treat all data up until the EOF as the
         // content.
         std::ostream request_stream(&request_buffer_);
-        request_stream << request_method << " ";
+        request_stream << request_method.value() << " ";
         request_stream << url_.to_string(
             url::path_component | url::query_component);
         request_stream << " HTTP/1.0\r\n";
@@ -251,20 +251,20 @@ public:
             url::host_component | url::port_component);
         request_stream << "\r\n";
         request_stream << "Accept: */*\r\n";
-        if (request_content.length())
+        if (request_content.value().length())
         {
           request_stream << "Content-Length: ";
-          request_stream << request_content.length() << "\r\n";
-          if (request_content_type.length())
+          request_stream << request_content.value().length() << "\r\n";
+          if (request_content_type.value().length())
           {
             request_stream << "Content-Type: ";
-            request_stream << request_content_type << "\r\n";
+            request_stream << request_content_type.value() << "\r\n";
           }
         }
-        if (user_agent.length())
-          request_stream << "User-Agent: " << user_agent << "\r\n";
+        if (user_agent.value().length())
+          request_stream << "User-Agent: " << user_agent.value() << "\r\n";
         request_stream << "Connection: close\r\n\r\n";
-        request_stream << request_content;
+        request_stream << request_content.value();
       }
 
       // Send the request.
