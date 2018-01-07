@@ -11,9 +11,9 @@
 #ifndef URDL_OPTION_SET_HPP
 #define URDL_OPTION_SET_HPP
 
-#include <typeinfo>
+#include <list>
 #include "urdl/detail/config.hpp"
-#include "urdl/detail/scoped_ptr.hpp"
+#include "urdl/detail/option_variant.hpp"
 
 #include "urdl/detail/abi_prefix.hpp"
 
@@ -35,6 +35,7 @@ namespace urdl {
 class option_set
 {
 public:
+#if defined(GENERATING_DOCUMENTATION)
   /// Constructs an object of class @c option_set.
   /**
    * @par Remarks
@@ -61,7 +62,7 @@ public:
    * @c get_option member function will return the same value for both sets.
    */
   URDL_DECL option_set& operator=(const option_set& other);
-
+#endif // defined(GENERATING_DOCUMENTATION)
   /// Sets the value of an option in the set.
   /**
    * @param o The option to be set.
@@ -73,7 +74,7 @@ public:
   template <typename Option>
   void set_option(const Option& o)
   {
-    set_option_wrapper_base(new option_wrapper<Option>(o));
+    set_option(Option::type, o.value());
   }
 
   /// Sets multiple options in a set from another set.
@@ -92,11 +93,10 @@ public:
    * value of the option. Otherwise, returns a default-constructed option.
    */
   template <typename Option>
-  Option get_option() const
+  Option get_option() const BOOST_NOEXCEPT
   {
-    if (option_wrapper_base* o
-        = get_option_wrapper_base(typeid(option_wrapper<Option>)))
-      return static_cast<option_wrapper<Option>*>(o)->value;
+    if (const option_wrapper* o = get_option(Option::type))
+      return Option(o->data.template value<typename Option::value_type>());
     return Option();
   }
 
@@ -109,35 +109,35 @@ public:
   template <typename Option>
   void clear_option()
   {
-    clear_option_wrapper_base(typeid(option_wrapper<Option>));
+    clear_option(Option::type);
   }
 
 private:
-  struct option_wrapper_base
+  struct option_wrapper
   {
-    virtual ~option_wrapper_base() {}
-    virtual const std::type_info& type_info() const = 0;
-    virtual option_wrapper_base* clone() const = 0;
-    detail::scoped_ptr<option_wrapper_base> next;
+    int type;
+    detail::option_variant data;
+
+    inline BOOST_CONSTEXPR friend bool operator==(const option_wrapper& a,
+        int t) BOOST_NOEXCEPT
+    { return a.type == t; }
   };
+
+  typedef std::list<option_wrapper> list_type;
 
   template <typename Option>
-  struct option_wrapper : option_wrapper_base
+  detail::option_variant get_option_data() const
   {
-    option_wrapper(const Option& o) : value(o) {}
-    const std::type_info& type_info() const
-    { return typeid(option_wrapper<Option>); }
-    option_wrapper_base* clone() const
-    { return new option_wrapper<Option>(value); }
-    Option value;
-  };
+    if (option_wrapper* o = get_option(Option::type))
+      return o->data;
+    return detail::option_variant();
+  }
 
-  URDL_DECL void set_option_wrapper_base(option_wrapper_base* o);
-  URDL_DECL option_wrapper_base* get_option_wrapper_base(
-      const std::type_info& ti) const;
-  URDL_DECL void clear_option_wrapper_base(const std::type_info& ti);
+  URDL_DECL void set_option(int type, detail::option_variant data);
+  URDL_DECL const option_wrapper* get_option(int type) const BOOST_NOEXCEPT;
+  URDL_DECL void clear_option(int type);
 
-  detail::scoped_ptr<option_wrapper_base> head_;
+  list_type options_;
 };
 
 } // namespace urdl

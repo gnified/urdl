@@ -13,6 +13,7 @@
 
 #include <string>
 #include <boost/system/error_code.hpp>
+#include "urdl/option_type.hpp"
 #include "urdl/detail/config.hpp"
 #include "urdl/detail/string_view.hpp"
 
@@ -58,6 +59,12 @@ URDL_DECL const boost::system::error_category& error_category() BOOST_NOEXCEPT;
 class request_method
 {
 public:
+  /// Type of the option's value.
+  typedef std::string value_type;
+
+  /// The unique type constant of this option class.
+  BOOST_STATIC_CONSTEXPR int type = option_type::request_method;
+
   /// Constructs an object of class @c request_method.
   /**
    * @par Remarks
@@ -137,6 +144,12 @@ private:
 class request_content
 {
 public:
+  /// Type of the option's value.
+  typedef std::string value_type;
+
+  /// The unique type constant of this option class.
+  BOOST_STATIC_CONSTEXPR int type = option_type::request_content;
+
   /// Constructs an object of class @c request_content.
   /**
    * @par Remarks
@@ -216,6 +229,12 @@ private:
 class request_content_type
 {
 public:
+  /// Type of the option's value.
+  typedef std::string value_type;
+
+  /// The unique type constant of this option class.
+  BOOST_STATIC_CONSTEXPR int type = option_type::request_content_type;
+
   /// Constructs an object of class @c request_content_type.
   /**
    * @par Remarks
@@ -292,6 +311,12 @@ private:
 class max_redirects
 {
 public:
+  /// Type of the option's value.
+  typedef std::size_t value_type;
+
+  /// The unique type constant of this option class.
+  BOOST_STATIC_CONSTEXPR int type = option_type::max_redirects;
+
   /// Constructs an object of class @c max_redirects.
   /**
    * @par Remarks
@@ -366,6 +391,12 @@ private:
 class user_agent
 {
 public:
+  /// Type of the option's value.
+  typedef std::string value_type;
+
+  /// The unique type constant of this option class.
+  BOOST_STATIC_CONSTEXPR int type = option_type::user_agent;
+
   /// Constructs an object of class @c user_agent.
   /**
    * @par Remarks
