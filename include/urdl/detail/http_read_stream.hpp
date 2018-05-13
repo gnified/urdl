@@ -177,13 +177,13 @@ public:
   class open_coro : coroutine
   {
   public:
-    open_coro(Handler handler, boost::asio::ip::tcp::resolver& resolver,
+    open_coro(Handler& handler, boost::asio::ip::tcp::resolver& resolver,
         Stream& socket, const option_set& options,
         boost::asio::streambuf& request_buffer,
         boost::asio::streambuf& reply_buffer, const url& u,
         std::string& headers, std::string& content_type,
         std::size_t& content_length, std::string& location)
-      : handler_(handler),
+      : handler_(BOOST_ASIO_MOVE_CAST(Handler)(handler)),
         resolver_(resolver),
         socket_(socket),
         options_(options),
@@ -208,14 +208,15 @@ public:
       {
         ec = boost::asio::error::already_open;
         URDL_CORO_YIELD(socket_.get_io_service().post(
-              boost::asio::detail::bind_handler(*this, ec)));
+              boost::asio::detail::bind_handler(
+                  BOOST_ASIO_MOVE_CAST(open_coro)(*this), ec)));
         handler_(ec);
         return;
       }
 
       // Establish a connection to the HTTP server.
       URDL_CORO_YIELD(async_connect(socket_.lowest_layer(),
-            resolver_, url_, *this));
+            resolver_, url(url_), BOOST_ASIO_MOVE_CAST(open_coro)(*this)));
       if (ec)
       {
         handler_(ec);
@@ -223,7 +224,9 @@ public:
       }
 
       // Perform SSL handshake if required.
-      URDL_CORO_YIELD(async_handshake(socket_, url_.host(), *this));
+      URDL_CORO_YIELD(async_handshake(
+          socket_, std::string(url_.host()),
+          BOOST_ASIO_MOVE_CAST(open_coro)(*this)));
       if (ec)
       {
         handler_(ec);
@@ -277,7 +280,8 @@ public:
 
       // Send the request.
       URDL_CORO_YIELD(boost::asio::async_write(socket_,
-            request_buffer_, boost::asio::transfer_all(), *this));
+            request_buffer_, boost::asio::transfer_all(),
+            BOOST_ASIO_MOVE_CAST(open_coro)(*this)));
       if (ec)
       {
         handler_(ec);
@@ -288,7 +292,8 @@ public:
       {
         // Read the reply status line.
         URDL_CORO_YIELD(boost::asio::async_read_until(socket_,
-              reply_buffer_, "\r\n", *this));
+              reply_buffer_, "\r\n",
+              BOOST_ASIO_MOVE_CAST(open_coro)(*this)));
         if (ec)
         {
           handler_(ec);
@@ -319,7 +324,8 @@ public:
       // reply buffer afterwards, it's the start of the content returned by the
       // HTTP server.
       URDL_CORO_YIELD(boost::asio::async_read_until(socket_,
-            reply_buffer_, "\r\n\r\n", *this));
+            reply_buffer_, "\r\n\r\n",
+            BOOST_ASIO_MOVE_CAST(open_coro)(*this)));
       headers_.resize(bytes_transferred);
       reply_buffer_.sgetn(&headers_[0], bytes_transferred);
       if (ec)
@@ -392,7 +398,7 @@ public:
   };
 
   template <typename Handler>
-  void async_open(const url& u, Handler handler)
+  void async_open(const url& u, BOOST_ASIO_MOVE_ARG(Handler) handler)
   {
     open_coro<Handler>(handler, resolver_, socket_, options_, request_buffer_,
         reply_buffer_, u, headers_, content_type_, content_length_, location_)(
@@ -474,8 +480,8 @@ public:
   class read_handler
   {
   public:
-    read_handler(Handler handler)
-      : handler_(handler)
+    read_handler(Handler& handler)
+      : handler_(BOOST_ASIO_MOVE_CAST(Handler)(handler))
     {
     }
 
@@ -521,7 +527,8 @@ public:
   };
 
   template <typename MutableBufferSequence, typename Handler>
-  void async_read_some(const MutableBufferSequence& buffers, Handler handler)
+  void async_read_some(const MutableBufferSequence& buffers,
+                       BOOST_ASIO_MOVE_ARG(Handler) handler)
   {
     // If we have any data in the reply_buffer_, return that first.
     if (reply_buffer_.size() > 0)
@@ -529,7 +536,7 @@ public:
       boost::system::error_code ec;
       std::size_t bytes_transferred = read_some(buffers, ec);
       socket_.get_io_service().post(boost::asio::detail::bind_handler(
-            handler, ec, bytes_transferred));
+            BOOST_ASIO_MOVE_CAST(Handler)(handler), ec, bytes_transferred));
       return;
     }
 

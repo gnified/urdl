@@ -107,12 +107,13 @@ public:
   }
 
   template <typename MutableBufferSequence, typename Handler>
-  void async_read_some(const MutableBufferSequence& buffers, Handler handler)
+  void async_read_some(const MutableBufferSequence& buffers,
+                       BOOST_ASIO_MOVE_ARG(Handler) handler)
   {
     boost::system::error_code ec;
     std::size_t bytes_transferred = read_some(buffers, ec);
     io_service_.post(boost::asio::detail::bind_handler(
-          handler, ec, bytes_transferred));
+          BOOST_ASIO_MOVE_CAST(Handler)(handler), ec, bytes_transferred));
   }
 
 private:

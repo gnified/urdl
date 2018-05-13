@@ -38,10 +38,12 @@ inline boost::system::error_code handshake(
 
 template <typename Handler>
 void async_handshake(boost::asio::ip::tcp::socket& socket,
-    const std::string& /*host*/, Handler handler)
+    const std::string& /*host*/,
+    BOOST_ASIO_MOVE_ARG(Handler) handler)
 {
   boost::system::error_code ec;
-  socket.get_io_service().post(boost::asio::detail::bind_handler(handler, ec));
+  socket.get_io_service().post(boost::asio::detail::bind_handler(
+      BOOST_ASIO_MOVE_CAST(Handler)(handler), ec));
 }
 
 #if !defined(URDL_DISABLE_SSL)
@@ -190,10 +192,10 @@ template <typename Handler>
 class handshake_coro : coroutine
 {
 public:
-  handshake_coro(Handler handler,
+  handshake_coro(Handler& handler,
       boost::asio::ssl::stream<boost::asio::ip::tcp::socket>& socket,
       const std::string& host)
-    : handler_(handler),
+    : handler_(BOOST_ASIO_MOVE_CAST(Handler)(handler)),
       socket_(socket),
       host_(host)
   {
@@ -205,7 +207,8 @@ public:
 
     // Perform SSL handshake.
     URDL_CORO_YIELD(socket_.async_handshake(
-          boost::asio::ssl::stream_base::client, *this));
+          boost::asio::ssl::stream_base::client,
+          BOOST_ASIO_MOVE_CAST(handshake_coro)(*this)));
     if (ec)
     {
       handler_(ec);
@@ -273,7 +276,7 @@ private:
 template <typename Handler>
 void async_handshake(
     boost::asio::ssl::stream<boost::asio::ip::tcp::socket>& socket,
-    const std::string& host, Handler handler)
+    const std::string& host, BOOST_ASIO_MOVE_ARG(Handler) handler)
 {
   handshake_coro<Handler>(handler, socket, host)(boost::system::error_code());
 }

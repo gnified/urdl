@@ -53,10 +53,10 @@ template <typename Handler>
 class connect_coro : coroutine
 {
 public:
-  connect_coro(Handler handler,
+  connect_coro(Handler& handler,
       boost::asio::ip::tcp::socket::lowest_layer_type& socket,
       boost::asio::ip::tcp::resolver& resolver)
-    : handler_(handler),
+    : handler_(BOOST_ASIO_MOVE_CAST(Handler)(handler)),
       socket_(socket),
       resolver_(resolver)
   {
@@ -80,13 +80,15 @@ public:
     if (ec)
     {
       URDL_CORO_YIELD(socket_.get_io_service().post(
-            boost::asio::detail::bind_handler(*this, ec)));
+            boost::asio::detail::bind_handler(
+                BOOST_ASIO_MOVE_CAST(connect_coro)(*this), ec)));
       handler_(ec);
       return;
     }
 
     // Get a list of endpoints corresponding to the host name.
-    URDL_CORO_YIELD(resolver_.async_resolve(*query, *this));
+    URDL_CORO_YIELD(resolver_.async_resolve(
+        *query, BOOST_ASIO_MOVE_CAST(connect_coro)(*this)));
     if (ec)
     {
       handler_(ec);
@@ -107,8 +109,9 @@ public:
 
       // Try next endpoint.
       socket_.close(ec);
-      endpoint_ = *iter_++;
-      URDL_CORO_YIELD(socket_.async_connect(endpoint_, *this));
+      URDL_CORO_YIELD(socket_.async_connect(
+          boost::asio::ip::tcp::endpoint(*iter_++),
+          BOOST_ASIO_MOVE_CAST(connect_coro)(*this)));
     }
     if (ec)
     {
@@ -167,12 +170,12 @@ private:
   boost::asio::ip::tcp::socket::lowest_layer_type& socket_;
   boost::asio::ip::tcp::resolver& resolver_;
   boost::asio::ip::tcp::resolver::iterator iter_;
-  boost::asio::ip::tcp::endpoint endpoint_;
 };
 
 template <typename Handler>
 void async_connect(boost::asio::ip::tcp::socket::lowest_layer_type& socket,
-    boost::asio::ip::tcp::resolver& resolver, const url& u, Handler handler)
+    boost::asio::ip::tcp::resolver& resolver, const url& u,
+    BOOST_ASIO_MOVE_ARG(Handler) handler)
 {
   std::ostringstream port_string;
   port_string << u.port();
