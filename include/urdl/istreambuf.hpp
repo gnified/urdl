@@ -68,17 +68,16 @@ public:
    * Options are uniquely identified by type.
    */
   template <typename Option>
-  Option get_option() const
+  Option get_option() const BOOST_NOEXCEPT
   {
-    option_set options(get_options());
-    return options.get_option<Option>();
+    return get_options().get_option<Option>();
   }
 
   /// Gets the values of all options set on the stream.
   /**
    * @returns An option set containing all options from the stream buffer.
    */
-  URDL_DECL option_set get_options() const;
+  URDL_DECL const option_set& get_options() const BOOST_NOEXCEPT;
 
   /// Determines whether the stream buffer is open.
   /**

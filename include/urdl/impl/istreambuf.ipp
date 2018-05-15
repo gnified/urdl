@@ -104,7 +104,7 @@ void istreambuf::set_options(const option_set& options)
   body_->read_stream_.set_options(options);
 }
 
-option_set istreambuf::get_options() const
+const option_set& istreambuf::get_options() const BOOST_NOEXCEPT
 {
   return body_->read_stream_.get_options();
 }
