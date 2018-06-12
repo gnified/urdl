@@ -14,6 +14,7 @@
 #include <string>
 #include <boost/system/error_code.hpp>
 #include "urdl/detail/config.hpp"
+#include "urdl/detail/string_view.hpp"
 
 #include "urdl/detail/abi_prefix.hpp"
 
@@ -74,7 +75,7 @@ public:
    * @par Remarks
    * Postcondition: <tt>value() == v</tt>
    */
-  explicit request_method(const std::string& v)
+  explicit request_method(URDL_STRING_VIEW_PARAM v)
     : value_(v)
   {
   }
@@ -95,7 +96,7 @@ public:
    * @par Remarks
    * Postcondition: <tt>value() == v</tt>
    */
-  void value(const std::string& v)
+  void value(URDL_STRING_VIEW_PARAM v)
   {
     value_ = v;
   }
@@ -153,7 +154,7 @@ public:
    * @par Remarks
    * Postcondition: <tt>value() == v</tt>
    */
-  explicit request_content(const std::string& v)
+  explicit request_content(URDL_STRING_VIEW_PARAM v)
     : value_(v)
   {
   }
@@ -174,7 +175,7 @@ public:
    * @par Remarks
    * Postcondition: <tt>value() == v</tt>
    */
-  void value(const std::string& v)
+  void value(URDL_STRING_VIEW_PARAM v)
   {
     value_ = v;
   }
@@ -232,7 +233,7 @@ public:
    * @par Remarks
    * Postcondition: <tt>value() == v</tt>
    */
-  explicit request_content_type(const std::string& v)
+  explicit request_content_type(URDL_STRING_VIEW_PARAM v)
     : value_(v)
   {
   }
@@ -253,7 +254,7 @@ public:
    * @par Remarks
    * Postcondition: <tt>value() == v</tt>
    */
-  void value(const std::string& v)
+  void value(URDL_STRING_VIEW_PARAM v)
   {
     value_ = v;
   }
@@ -382,7 +383,7 @@ public:
    * @par Remarks
    * Postcondition: <tt>value() == v</tt>
    */
-  explicit user_agent(const std::string& v)
+  explicit user_agent(URDL_STRING_VIEW_PARAM v)
     : value_(v)
   {
   }
@@ -403,7 +404,7 @@ public:
    * @par Remarks
    * Postcondition: <tt>value() == v</tt>
    */
-  void value(const std::string& v)
+  void value(URDL_STRING_VIEW_PARAM v)
   {
     value_ = v;
   }
@@ -456,7 +457,7 @@ public:
    * @par Remarks
    * Postcondition: <tt>value() == v</tt>
    */
-  explicit cache_control(const std::string& v)
+  explicit cache_control(URDL_STRING_VIEW_PARAM v)
     : value_(v)
   {
   }
@@ -477,7 +478,7 @@ public:
    * @par Remarks
    * Postcondition: <tt>value() == v</tt>
    */
-  void value(const std::string& v)
+  void value(URDL_STRING_VIEW_PARAM v)
   {
     value_ = v;
   }
