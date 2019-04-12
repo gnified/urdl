@@ -30,7 +30,7 @@ namespace detail {
 
 inline boost::system::error_code handshake(
     boost::asio::ip::tcp::socket& /*socket*/,
-    const std::string& /*host*/, boost::system::error_code& ec)
+    const std::string& /*host*/, int /*verify_mode*/, boost::system::error_code& ec)
 {
   ec = boost::system::error_code();
   return ec;
@@ -38,7 +38,7 @@ inline boost::system::error_code handshake(
 
 template <typename Handler>
 void async_handshake(boost::asio::ip::tcp::socket& socket,
-    const std::string& /*host*/,
+    const std::string& /*host*/, int /*verify_mode*/,
     BOOST_ASIO_MOVE_ARG(Handler) handler)
 {
   boost::system::error_code ec;
@@ -161,7 +161,8 @@ inline bool certificate_matches_host(X509* cert, const std::string& host)
 
 inline boost::system::error_code handshake(
     boost::asio::ssl::stream<boost::asio::ip::tcp::socket>& socket,
-    const std::string& host, boost::system::error_code& ec)
+    const std::string& host, boost::asio::ssl::verify_mode verify_mode,
+    boost::system::error_code& ec)
 {
   // Perform SSL handshake.
   socket.handshake(boost::asio::ssl::stream_base::client, ec);
@@ -169,21 +170,26 @@ inline boost::system::error_code handshake(
     return ec;
 
   // Verify the certificate returned by the host.
-  if (X509* cert = SSL_get_peer_certificate(socket.native_handle()))
+  if (0 != (verify_mode & boost::asio::ssl::verify_peer))
   {
-    if (SSL_get_verify_result(socket.native_handle()) == X509_V_OK)
+    if (X509* cert = SSL_get_peer_certificate(socket.native_handle()))
     {
-      if (certificate_matches_host(cert, host))
-        ec = boost::system::error_code();
+      if (SSL_get_verify_result(socket.native_handle()) == X509_V_OK)
+      {
+        if (certificate_matches_host(cert, host))
+          ec = boost::system::error_code();
+        else
+          ec = make_error_code(boost::system::errc::permission_denied);
+      }
       else
         ec = make_error_code(boost::system::errc::permission_denied);
+      X509_free(cert);
     }
-    else
+    else if (0 != (verify_mode & boost::asio::ssl::verify_fail_if_no_peer_cert))
+    {
       ec = make_error_code(boost::system::errc::permission_denied);
-    X509_free(cert);
+    }
   }
-  else
-    ec = make_error_code(boost::system::errc::permission_denied);
 
   return ec;
 }
@@ -194,10 +200,11 @@ class handshake_coro : coroutine
 public:
   handshake_coro(Handler& handler,
       boost::asio::ssl::stream<boost::asio::ip::tcp::socket>& socket,
-      const std::string& host)
+      const std::string& host, boost::asio::ssl::verify_mode verify_mode)
     : handler_(BOOST_ASIO_MOVE_CAST(Handler)(handler)),
       socket_(socket),
-      host_(host)
+      host_(host),
+      verify_mode_(verify_mode)
   {
   }
 
@@ -216,21 +223,26 @@ public:
     }
 
     // Verify the certificate returned by the host.
-    if (X509* cert = SSL_get_peer_certificate(socket_.native_handle()))
+    if (0 != (verify_mode_ & boost::asio::ssl::verify_peer))
     {
-      if (SSL_get_verify_result(socket_.native_handle()) == X509_V_OK)
+      if (X509* cert = SSL_get_peer_certificate(socket_.native_handle()))
       {
-        if (certificate_matches_host(cert, host_))
-          ec = boost::system::error_code();
+        if (SSL_get_verify_result(socket_.native_handle()) == X509_V_OK)
+        {
+          if (certificate_matches_host(cert, host_))
+            ec = boost::system::error_code();
+          else
+            ec = make_error_code(boost::system::errc::permission_denied);
+        }
         else
           ec = make_error_code(boost::system::errc::permission_denied);
+        X509_free(cert);
       }
-      else
+      else if (0 != (verify_mode_ & boost::asio::ssl::verify_fail_if_no_peer_cert))
+      {
         ec = make_error_code(boost::system::errc::permission_denied);
-      X509_free(cert);
+      }
     }
-    else
-      ec = make_error_code(boost::system::errc::permission_denied);
 
     handler_(ec);
 
@@ -271,14 +283,16 @@ private:
   Handler handler_;
   boost::asio::ssl::stream<boost::asio::ip::tcp::socket>& socket_;
   std::string host_;
+  boost::asio::ssl::verify_mode verify_mode_;
 };
 
 template <typename Handler>
 void async_handshake(
     boost::asio::ssl::stream<boost::asio::ip::tcp::socket>& socket,
-    const std::string& host, BOOST_ASIO_MOVE_ARG(Handler) handler)
+    const std::string& host, boost::asio::ssl::verify_mode verify_mode,
+    BOOST_ASIO_MOVE_ARG(Handler) handler)
 {
-  handshake_coro<Handler>(handler, socket, host)(boost::system::error_code());
+  handshake_coro<Handler>(handler, socket, host, verify_mode)(boost::system::error_code());
 }
 #endif // !defined(URDL_DISABLE_SSL)
 

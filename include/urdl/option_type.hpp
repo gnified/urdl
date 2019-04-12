@@ -20,13 +20,19 @@ namespace option_type {
 // that is instantiated once per option class
 // and whose address is therefore unique for a certain option.
 
-enum http_option_type
+enum option_type
 {
+  // HTTP
   request_method,
   request_content,
   request_content_type,
   max_redirects,
   user_agent,
+  cache_control,
+  authorization,
+
+  // SSL
+  verify_mode,
 };
 
 }

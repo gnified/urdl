@@ -30,6 +30,10 @@
 #include "urdl/detail/handshake.hpp"
 #include "urdl/detail/parsers.hpp"
 
+#if !defined(URDL_DISABLE_SSL)
+# include "urdl/ssl.hpp"
+#endif
+
 #include "urdl/detail/abi_prefix.hpp"
 
 namespace urdl {
@@ -72,10 +76,14 @@ public:
     if (ec)
       return ec;
 
+#if !defined(URDL_DISABLE_SSL)
     // Perform SSL handshake if required.
-    handshake(socket_, u.host(), ec);
+    handshake(socket_, u.host(),
+              options_.get_option<urdl::ssl::verify_mode>().value(),
+              ec);
     if (ec)
       return ec;
+#endif
 
     // Get the HTTP options used to build the request.
     urdl::http::request_method request_method
@@ -88,6 +96,8 @@ public:
       = options_.get_option<urdl::http::user_agent>();
     urdl::http::cache_control cache_control
       = options_.get_option<urdl::http::cache_control>();
+    urdl::http::authorization authorization
+      = options_.get_option<urdl::http::authorization>();
 
     // Form the request. We specify the "Connection: close" header so that the
     // server will close the socket after transmitting the response. This will
@@ -100,20 +110,22 @@ public:
     request_stream << u.to_string(url::host_component | url::port_component);
     request_stream << "\r\n";
     request_stream << "Accept: */*\r\n";
-    if (request_content.value().length())
+    if (!request_content.value().empty())
     {
       request_stream << "Content-Length: ";
       request_stream << request_content.value().length() << "\r\n";
-      if (request_content_type.value().length())
+      if (!request_content_type.value().empty())
       {
         request_stream << "Content-Type: ";
         request_stream << request_content_type.value() << "\r\n";
       }
     }
-    if (user_agent.value().length())
+    if (!user_agent.value().empty())
       request_stream << "User-Agent: " << user_agent.value() << "\r\n";
-    if (cache_control.value().length())
+    if (!cache_control.value().empty())
       request_stream << "Cache-Control: " << cache_control.value() << "\r\n";
+    if (!authorization.value().empty())
+      request_stream << "Authorization: " << authorization.value() << "\r\n";
     request_stream << "Connection: close\r\n\r\n";
     request_stream << request_content.value();
 
@@ -223,15 +235,18 @@ public:
         return;
       }
 
+#if !defined(URDL_DISABLE_SSL)
       // Perform SSL handshake if required.
       URDL_CORO_YIELD(async_handshake(
           socket_, std::string(url_.host()),
+          options_.get_option<urdl::ssl::verify_mode>().value(),
           BOOST_ASIO_MOVE_CAST(open_coro)(*this)));
       if (ec)
       {
         handler_(ec);
         return;
       }
+#endif
 
       {
         // Get the HTTP options used to build the request.
@@ -245,6 +260,8 @@ public:
           = options_.get_option<urdl::http::user_agent>();
         urdl::http::cache_control cache_control
           = options_.get_option<urdl::http::cache_control>();
+        urdl::http::authorization authorization
+          = options_.get_option<urdl::http::authorization>();
 
         // Form the request. We specify the "Connection: close" header so that
         // the server will close the socket after transmitting the response.
@@ -260,20 +277,22 @@ public:
             url::host_component | url::port_component);
         request_stream << "\r\n";
         request_stream << "Accept: */*\r\n";
-        if (request_content.value().length())
+        if (!request_content.value().empty())
         {
           request_stream << "Content-Length: ";
           request_stream << request_content.value().length() << "\r\n";
-          if (request_content_type.value().length())
+          if (!request_content_type.value().empty())
           {
             request_stream << "Content-Type: ";
             request_stream << request_content_type.value() << "\r\n";
           }
         }
-        if (user_agent.value().length())
+        if (!user_agent.value().empty())
           request_stream << "User-Agent: " << user_agent.value() << "\r\n";
-        if (cache_control.value().length())
+        if (!cache_control.value().empty())
           request_stream << "Cache-Control: " << cache_control.value() << "\r\n";
+        if (!authorization.value().empty())
+          request_stream << "Authorization: " << authorization.value() << "\r\n";
         request_stream << "Connection: close\r\n\r\n";
         request_stream << request_content.value();
       }

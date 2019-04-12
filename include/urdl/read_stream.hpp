@@ -23,6 +23,7 @@
 #include "urdl/detail/http_read_stream.hpp"
 
 #if !defined(URDL_DISABLE_SSL)
+# include "urdl/ssl.hpp"
 # include <boost/asio/ssl.hpp>
 #endif // !defined(URDL_DISABLE_SSL)
 
@@ -119,7 +120,6 @@ public:
       protocol_(unknown)
   {
 #if !defined(URDL_DISABLE_SSL)
-    ssl_context_.set_verify_mode(boost::asio::ssl::context::verify_peer);
     SSL_CTX_set_default_verify_paths(ssl_context_.native_handle());
 #endif // !defined(URDL_DISABLE_SSL)
   }
@@ -318,6 +318,8 @@ public:
       else if (tmp_url.protocol() == "https")
       {
         protocol_ = https;
+        ssl_context_.set_verify_mode(options_.get_option<
+            urdl::ssl::verify_mode>().value());
         https_.open(tmp_url, ec);
         if (ec == http::errc::moved_permanently || ec == http::errc::found)
         {
@@ -744,6 +746,8 @@ private:
         else if (url_.protocol() == "https")
         {
           this_->protocol_ = https;
+          this_->ssl_context_.set_verify_mode(this_->options_.get_option<
+              urdl::ssl::verify_mode>().value());
           URDL_CORO_YIELD(this_->https_.async_open(
                 url(url_), BOOST_ASIO_MOVE_CAST(open_coro)(*this)));
           if (ec == http::errc::moved_permanently || ec == http::errc::found)

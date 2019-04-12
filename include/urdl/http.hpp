@@ -471,6 +471,12 @@ private:
 class cache_control
 {
 public:
+  /// Type of the option's value.
+  typedef std::string value_type;
+
+  /// The unique type constant of this option class.
+  BOOST_STATIC_CONSTEXPR int type = option_type::cache_control;
+
   /// Constructs an object of class @c cache_control.
   /**
    * @par Remarks
@@ -489,6 +495,86 @@ public:
    * Postcondition: <tt>value() == v</tt>
    */
   explicit cache_control(URDL_STRING_VIEW_PARAM v)
+    : value_(v)
+  {
+  }
+
+  /// Gets the value of the option.
+  /**
+   * @returns The value of the option.
+   */
+  const std::string& value() const BOOST_NOEXCEPT
+  {
+    return value_;
+  }
+
+  /// Sets the value of the option.
+  /**
+   * @param v The desired value for the option.
+   *
+   * @par Remarks
+   * Postcondition: <tt>value() == v</tt>
+   */
+  void value(URDL_STRING_VIEW_PARAM v)
+  {
+    value_ = v;
+  }
+
+private:
+  std::string value_;
+};
+
+/// Option to specify the Authorization header.
+/**
+ * @par Remarks
+ * The default is to not specify the Authorization header.
+ *
+ * @par Example
+ * To set the Authorization header for an object of class @c urdl::istream:
+ * @code
+ * urdl::istream is;
+ * is.set_option(urdl::http::authorization("Bearer 3487573tuihgn"));
+ * is.open("http://www.boost.org");
+ * @endcode
+ *
+ * To set the Authorization header for an object of class @c urdl::read_stream:
+ * @code
+ * urdl::read_stream stream;
+ * stream.set_option(urdl::http::authorization("Bearer 3487573tuihgn"));
+ * stream.open("http://www.boost.org");
+ * @endcode
+ *
+ * @par Requirements
+ * @e Header: @c <urdl/http.hpp> @n
+ * @e Namespace: @c urdl::http
+ */
+class authorization
+{
+public:
+  /// Type of the option's value.
+  typedef std::string value_type;
+
+  /// The unique type constant of this option class.
+  BOOST_STATIC_CONSTEXPR int type = option_type::authorization;
+
+  /// Constructs an object of class @c authorization.
+  /**
+   * @par Remarks
+   * Postcondition: <tt>value() == ""</tt>.
+   */
+  authorization()
+    : value_()
+  {
+  }
+
+  /// Constructs an object of class @c authorization.
+  /**
+   * @param v The desired value for the option.
+   *
+   * @par Remarks
+   * Postcondition: <tt>value() == v</tt>
+   */
+  explicit authorization(URDL_STRING_VIEW_PARAM v)
     : value_(v)
   {
   }
