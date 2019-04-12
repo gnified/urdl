@@ -23,8 +23,8 @@ struct option_type_predicate
     // ctor
   }
 
-  BOOST_CONSTEXPR bool operator(
-      const option_set::option_wrapper& w) BOOST_NOEXCEPT
+  template <typename T>
+  BOOST_CONSTEXPR bool operator()(const T& w) BOOST_NOEXCEPT
   {
     return w.type == type_;
   }

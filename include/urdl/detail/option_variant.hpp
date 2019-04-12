@@ -36,8 +36,8 @@ public:
 
   option_variant(size_type v) BOOST_NOEXCEPT
     : active_type_(size)
+    , size_val_(v)
   {
-    // ctor
   }
 
   option_variant(const string_type& v) BOOST_NOEXCEPT
@@ -149,6 +149,7 @@ public:
       new (&string_val_) string_type(std::move(v));
       active_type_ = string;
     }
+    return *this;
   }
 
   option_variant& operator=(option_variant&& o)
