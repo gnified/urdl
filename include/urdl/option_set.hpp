@@ -96,7 +96,7 @@ public:
   Option get_option() const BOOST_NOEXCEPT
   {
     if (const option_wrapper* o = get_option(Option::type))
-      return Option(o->data.template value<typename Option::value_type>());
+      return Option(detail::value<typename Option::value_type>(o->data));
     return Option();
   }
 

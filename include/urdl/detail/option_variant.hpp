@@ -89,15 +89,10 @@ public:
       string_val_.~string_type();
   }
 
-  template <typename T>
-  const T& value() const BOOST_NOEXCEPT;
-
-  template <>
-  const size_type& value<size_type>() const BOOST_NOEXCEPT
+  const size_type& size_value() const BOOST_NOEXCEPT
   { return size_val_; }
 
-  template <>
-  const string_type& value<string_type>() const BOOST_NOEXCEPT
+  const string_type& string_value() const BOOST_NOEXCEPT
   { return string_val_; }
 
   option_variant& operator=(size_type v) BOOST_NOEXCEPT
@@ -185,6 +180,18 @@ private:
     string_type string_val_;
   };
 };
+
+template <typename T>
+const T& value(const option_variant&) BOOST_NOEXCEPT;
+
+template <>
+inline const std::size_t& value<std::size_t>(const option_variant& v) BOOST_NOEXCEPT
+{ return v.size_value(); }
+
+template <>
+inline const std::string& value<std::string>(const option_variant& v) BOOST_NOEXCEPT
+{ return v.string_value(); }
+
 
 } // namespace detail
 } // namespace urdl
